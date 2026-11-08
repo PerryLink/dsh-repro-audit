@@ -17,6 +17,8 @@ import path from 'node:path'
 const SKIP_DIRECTORIES = new Set([
   '.git', 'node_modules', '.venv', 'venv', 'dist', 'build', 'out', 'target',
   '__pycache__', 'coverage', '.next', '.cache', '.idea', '.vscode', '.tox', '.mypy_cache',
+  // The plugin's default record store lives inside the workspace; never scan it.
+  '.repro-audit',
 ])
 
 /** File names treated as dependency locks. */
@@ -105,6 +107,8 @@ export interface ScanOptions {
   readonly maxDepth?: number
   /** Maximum bytes hashed per file (default 8 MiB). */
   readonly maxFileBytes?: number
+  /** Absolute paths (and their descendants) to leave out of the scan. */
+  readonly ignorePaths?: readonly string[]
 }
 
 /** Hash one buffer. */
@@ -194,6 +198,8 @@ export async function scanProject(root: string, options: ScanOptions = {}): Prom
   const maxFiles = options.maxFiles ?? 2000
   const maxDepth = options.maxDepth ?? 6
   const maxFileBytes = options.maxFileBytes ?? 8 * 1024 * 1024
+  const ignorePaths = (options.ignorePaths ?? []).map(item => path.resolve(item))
+  const isIgnored = (absolute: string): boolean => ignorePaths.some(ignore => absolute === ignore || isInside(ignore, absolute))
   const lockfiles: ScannedFile[] = []
   const envFiles: ScannedFile[] = []
   const data: ScannedFile[] = []
@@ -224,6 +230,7 @@ export async function scanProject(root: string, options: ScanOptions = {}): Prom
       }
       const absolute = path.join(directory, entry.name)
       const relative = path.relative(root, absolute).split(path.sep).join('/')
+      if (isIgnored(absolute)) continue
       if (entry.isSymbolicLink()) {
         warnings.push(`symlink skipped: ${relative}`)
         continue

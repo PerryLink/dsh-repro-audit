@@ -114,6 +114,15 @@ describe('runtime', () => {
     }
   })
 
+  it('does not scan its own record store when it lives inside the project', async () => {
+    const inside = new ReproAuditRuntime({ config: resolveConfig({ workspaceRoot: workspace, root: path.join(workspace, 'store-inside') }), now: () => AT })
+    await inside.manifest()
+    const second = await inside.manifest()
+    expect(second.manifest.artifacts.some(artifact => artifact.path?.startsWith('store-inside/'))).toBe(false)
+    const drift = await inside.check({ manifest: second.manifest })
+    expect(drift.findings.some(finding => finding.path?.startsWith('store-inside/'))).toBe(false)
+  })
+
   it('rejects paths outside the workspace', async () => {
     await expect(runtime().manifest({ path: '../elsewhere' })).rejects.toBeInstanceOf(ReproError)
   })

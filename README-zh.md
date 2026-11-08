@@ -86,18 +86,20 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 | `maxDepth` | `6` | directory depth |
 | `maxFileBytes` | `8388608` | per-file hash cap (larger data is recorded unhashed + gap) |
 
-Ignored directories: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target`, `__pycache__`, `coverage`, `.next`, caches.
+Ignored directories: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target`, `__pycache__`, `coverage`, `.next`, caches, `.repro-audit`, plus the configured store root when it is inside the project.
 
 ## 安全边界
 
-- Read-only: no file is written inside the project; records go under `root`.
+- The project is read-only; records go under `root`. A store that lives inside
+  the scanned tree (the default `.repro-audit/`) is excluded from the scan, so
+  the manifest cannot include its own records.
 - Symlinks inside the project are reported and skipped, never followed.
 - Hash caps prevent memory blow-ups; the file cap is reported, not ignored.
 - `git` runs with fixed read-only arguments, a 5 s timeout and `windowsHide`; no shell.
 
 ## 评测
 
-**21 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
+**22 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
 
 Manual sample matrix (no benchmark claimed — the artifact set is rule-based, not learned):
 

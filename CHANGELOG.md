@@ -21,10 +21,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   gap with its build configuration.
 - The `no_seed` gap now recognizes lowercase `.r` (and `.Rmd`/`.qmd`) scripts;
   it previously matched only `.py` and uppercase `.R`.
+- Exclude the configured record store from the scan when it is inside the
+  project (the default `.repro-audit/` is also in the skip list); previously a
+  second manifest/drift check hashed its own records as added data.
 
 ### Changed
 
-- Test count is now 21; the README and evaluation notes list the new failure
+- Test count is now 22; the README and evaluation notes list the new failure
   branches.
 
 ## [0.1.0] - 2026-11-08

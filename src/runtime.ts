@@ -128,10 +128,12 @@ export class ReproAuditRuntime {
    */
   async manifest(options: { path?: string } = {}): Promise<ManifestResult> {
     const directory = await this.resolveDirectory(options.path)
+    const storeInside = this.config.root !== directory.absolute && isInside(directory.absolute, this.config.root)
     const scan = await scanProject(directory.absolute, {
       maxFiles: this.config.maxFiles,
       maxDepth: this.config.maxDepth,
       maxFileBytes: this.config.maxFileBytes,
+      ...(storeInside ? { ignorePaths: [this.config.root] } : {}),
     })
     const git = await gitEvidence(directory.absolute)
     const manifest = buildManifest({ rootId: directory.id === '.' ? path.basename(directory.absolute) : directory.id, generatedAt: this.iso(), scan, git })
@@ -205,6 +207,13 @@ export class ReproAuditRuntime {
     }
     const directory = await this.resolveDirectory(request.path)
     const git = await gitEvidence(directory.absolute)
-    return compareManifest(manifest, directory.absolute, { generatedAt: this.iso(), git })
+    const storeInside = this.config.root !== directory.absolute && isInside(directory.absolute, this.config.root)
+    const scan = await scanProject(directory.absolute, {
+      maxFiles: this.config.maxFiles,
+      maxDepth: this.config.maxDepth,
+      maxFileBytes: this.config.maxFileBytes,
+      ...(storeInside ? { ignorePaths: [this.config.root] } : {}),
+    })
+    return compareManifest(manifest, directory.absolute, { generatedAt: this.iso(), git, scan })
   }
 }
