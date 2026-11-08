@@ -3,7 +3,7 @@
   "datasetVersion": "0.1.0",
   "plugin": {
     "name": "dsh-repro-audit",
-    "version": "0.1.2"
+    "version": "0.1.3"
   },
   "command": "pnpm run bench:repro",
   "call": "ReproAuditRuntime.manifest({ path: \"project\" }) then ReproAuditRuntime.check({ manifest, path: \"project\" })",

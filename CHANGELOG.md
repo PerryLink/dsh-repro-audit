@@ -21,6 +21,12 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `bench/results-repro.md` (10/10 cases passed; gap precision/recall 1.000;
   drift detection 3/3; no false positives 7/7).
 
+## [0.1.3] - 2026-11-08
+
+### Added
+
+- Deterministic 10-project reproducibility benchmark (`pnpm run bench:repro`): level accuracy 10/10, gap precision/recall 1.00, drift detection 3/3, no false drift on 7/7 clean cases. Git is a hard prerequisite (exit 2 without it).
+
 ## [0.1.2] - 2026-11-08
 
 ### Changed

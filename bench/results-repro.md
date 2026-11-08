@@ -1,7 +1,7 @@
 # dsh-repro-audit benchmark: repro
 
 - Dataset: `repro` v0.1.0 (10 synthetic recipe cases)
-- Plugin: `dsh-repro-audit` v0.1.2
+- Plugin: `dsh-repro-audit` v0.1.3
 - Call: `ReproAuditRuntime.manifest({ path: "project" })` then `ReproAuditRuntime.check({ manifest, path: "project" })`
 - Command: `pnpm run bench:repro`
 - Fixtures: one fresh `mkdtemp` per case; git identity `fixture@example.invalid`; drift applied after the manifest
