@@ -4,6 +4,7 @@
  */
 
 import { execFile } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -77,6 +78,19 @@ describe('scan', () => {
   it('caps the file count and says so', async () => {
     const scan = await scanProject(root, { maxFiles: 3 })
     expect(scan.truncated).toBe(true)
+  })
+})
+
+describe('git evidence', () => {
+  it('does not execute a repository-local fsmonitor hook', async () => {
+    if (process.platform === 'win32') return
+    const hook = path.join(root, 'fsmonitor.sh')
+    const marker = path.join(root, 'fsmonitor-called')
+    await writeFile(hook, `#!/bin/sh\necho called >> ${JSON.stringify(marker)}\nprintf '1\\n'\n`, { encoding: 'utf8', mode: 0o755 })
+    await git('config', 'core.fsmonitor', hook)
+    const evidence = await gitEvidence(root)
+    expect(evidence.commit).toBeDefined()
+    expect(existsSync(marker)).toBe(false)
   })
 })
 

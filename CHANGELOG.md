@@ -24,10 +24,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Exclude the configured record store from the scan when it is inside the
   project (the default `.repro-audit/` is also in the skip list); previously a
   second manifest/drift check hashed its own records as added data.
+- Disable repository-local fsmonitor hooks for the read-only `git` calls: a
+  repository can configure `core.fsmonitor` to an executable, which `git status`
+  would run. `GIT_OPTIONAL_LOCKS=0` also keeps `git status` from refreshing the
+  index. A regression test asserts the hook is not executed.
 
 ### Changed
 
-- Test count is now 22; the README and evaluation notes list the new failure
+- Test count is now 23; the README and evaluation notes list the new failure
   branches.
 
 ## [0.1.0] - 2026-11-08

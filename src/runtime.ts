@@ -67,7 +67,14 @@ function isManifest(value: unknown): value is ReproManifest {
 export async function gitEvidence(root: string): Promise<GitEvidence> {
   const run = async (args: string[]): Promise<string | undefined> => {
     try {
-      const { stdout } = await execFileAsync('git', ['-C', root, ...args], { timeout: 5000, windowsHide: true, maxBuffer: 4 * 1024 * 1024 })
+      const { stdout } = await execFileAsync('git', ['-C', root, '-c', 'core.fsmonitor=false', ...args], {
+        timeout: 5000,
+        windowsHide: true,
+        maxBuffer: 4 * 1024 * 1024,
+        // `git status` may otherwise refresh/write the index, and a repo-local
+        // fsmonitor hook is an arbitrary command; disable both.
+        env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
+      })
       return stdout.trim()
     } catch {
       return undefined
