@@ -1,0 +1,18 @@
+# dsh-repro-audit bundle patch: mount the reproducibility tools.
+#
+# Every key below is a Config field (Schemastery schema); invalid values fail the
+# profile load loudly. The scan is read-only and bounded; the only subprocesses
+# are git rev-parse / git status.
+- insert:
+    - id: dsh-repro-audit
+      name: dsh-repro-audit
+      config:
+        enabled: true
+        root: .repro-audit
+        # Maximum files visited per scan (over-limit is reported, not ignored).
+        maxFiles: 2000
+        # Maximum directory depth.
+        maxDepth: 6
+        # Maximum bytes hashed per file; larger data files are recorded unhashed
+        # and reported as a gap instead of being silently skipped.
+        maxFileBytes: 8388608

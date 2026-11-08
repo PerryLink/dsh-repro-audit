@@ -1,0 +1,7 @@
+node_modules/
+lib/
+lib-test-types/
+coverage/
+*.tgz
+*.log
+.repro-audit/

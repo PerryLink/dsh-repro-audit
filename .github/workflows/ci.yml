@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # The shared REP protocol is a required peer; check it out as a sibling so
+      # the local `file:../dsh-research-core` devDependency resolves in CI.
+      - name: Checkout dsh-research-core
+        uses: actions/checkout@v7
+        with:
+          repository: PerryLink/dsh-research-core
+          path: .ci/dsh-research-core
+
+      - name: Point the dev dependency at the checkout
+        shell: bash
+        run: |
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.devDependencies['@perrylink/dsh-research-core']='file:.ci/dsh-research-core';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.16.1
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Verify published package surface
+        run: pnpm run verify:package
+
+      - name: Pack
+        run: pnpm pack
