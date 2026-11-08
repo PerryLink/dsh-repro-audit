@@ -46,11 +46,28 @@ export function makeReproCardTool() {
     },
     async execute(args: unknown) {
       const request = args as { manifest?: ReproManifest; drift?: DriftReport }
-      if (request.manifest === undefined || request.manifest.manifestVersion !== 1) {
+      const manifest = request.manifest
+      if (manifest === undefined || manifest.manifestVersion !== 1
+        || !Array.isArray(manifest.artifacts) || !Array.isArray(manifest.gaps)
+        || !Array.isArray(manifest.warnings) || !Array.isArray(manifest.commands) || !Array.isArray(manifest.seeds)
+        || typeof manifest.rootId !== 'string' || typeof manifest.level !== 'string' || typeof manifest.generatedAt !== 'string'
+        || typeof manifest.truncated !== 'boolean' || typeof manifest.git !== 'object' || manifest.git === null
+        || typeof manifest.runtimes !== 'object' || manifest.runtimes === null) {
         return { ok: false as const, error: { code: 'INVALID_MANIFEST', message: 'pass a manifest returned by repro_manifest' } }
       }
-      const markdown = request.drift === undefined ? renderManifestMarkdown(request.manifest) : `${renderManifestMarkdown(request.manifest)}\n${renderDriftMarkdown(request.drift)}`
-      return { ok: true as const, markdown, sarif: renderReproSarif(request.manifest, request.drift, VERSION) as never }
+      const malformedGap = manifest.gaps.some(gap => gap === null || typeof gap !== 'object'
+        || typeof gap.code !== 'string' || typeof gap.severity !== 'string'
+        || typeof gap.detail !== 'string' || typeof gap.suggestion !== 'string')
+      const malformedArtifact = manifest.artifacts.some(artifact => artifact === null || typeof artifact !== 'object'
+        || typeof artifact.kind !== 'string' || typeof artifact.hash !== 'string')
+      if (malformedGap || malformedArtifact) {
+        return { ok: false as const, error: { code: 'INVALID_MANIFEST', message: 'the manifest contains malformed gaps or artifacts' } }
+      }
+      if (request.drift !== undefined && (!Array.isArray(request.drift.findings) || typeof request.drift.level !== 'string' || typeof request.drift.checkedAt !== 'string')) {
+        return { ok: false as const, error: { code: 'INVALID_INPUT', message: 'drift must be a drift report returned by repro_check' } }
+      }
+      const markdown = request.drift === undefined ? renderManifestMarkdown(manifest) : `${renderManifestMarkdown(manifest)}\n${renderDriftMarkdown(request.drift)}`
+      return { ok: true as const, markdown, sarif: renderReproSarif(manifest, request.drift, VERSION) as never }
     },
   })
 }

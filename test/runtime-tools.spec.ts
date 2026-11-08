@@ -4,7 +4,7 @@
  */
 
 import { execFile } from 'node:child_process'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { promisify } from 'node:util'
@@ -87,6 +87,33 @@ describe('runtime', () => {
     expect(drift.findings).toEqual([])
   })
 
+  it('rejects malformed saved manifests with INVALID_MANIFEST', async () => {
+    const rt = runtime()
+    await mkdir(path.join(workspace, 'build'), { recursive: true })
+    await writeFile(path.join(workspace, 'build', 'bad.json'), '{not json', 'utf8')
+    await expect(rt.check({ manifestPath: 'build/bad.json', path: '.' })).rejects.toMatchObject({ code: 'INVALID_MANIFEST' })
+    await writeFile(path.join(workspace, 'build', 'null.json'), 'null', 'utf8')
+    await expect(rt.check({ manifestPath: 'build/null.json', path: '.' })).rejects.toMatchObject({ code: 'INVALID_MANIFEST' })
+    await writeFile(path.join(workspace, 'build', 'shape.json'), JSON.stringify({ manifestVersion: 1, artifacts: [] }), 'utf8')
+    await expect(rt.check({ manifestPath: 'build/shape.json', path: '.' })).rejects.toMatchObject({ code: 'INVALID_MANIFEST' })
+  })
+
+  it('rejects a manifest symlink that escapes the workspace', async () => {
+    const outside = await mkdtemp(path.join(tmpdir(), 'repro-outside-'))
+    try {
+      await writeFile(path.join(outside, 'manifest.json'), JSON.stringify({ manifestVersion: 1, artifacts: [], gaps: [], warnings: [], seeds: [], commands: [], rootId: 'outside', generatedAt: AT.toISOString() }), 'utf8')
+      try {
+        await symlink(path.join(outside, 'manifest.json'), path.join(workspace, 'leak.json'))
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'EPERM') return
+        throw error
+      }
+      await expect(runtime().check({ manifestPath: 'leak.json', path: '.' })).rejects.toMatchObject({ code: 'PATH_ESCAPE' })
+    } finally {
+      if (outside.startsWith(tmpdir())) await rm(outside, { recursive: true, force: true })
+    }
+  })
+
   it('rejects paths outside the workspace', async () => {
     await expect(runtime().manifest({ path: '../elsewhere' })).rejects.toBeInstanceOf(ReproError)
   })
@@ -129,6 +156,15 @@ describe('tools', () => {
     const value = (await makeReproCheckTool(runtime()).execute({}, EXEC)) as { ok: false; error: { code: string } }
     expect(value.ok).toBe(false)
     expect(value.error.code).toBe('INVALID_INPUT')
+  })
+
+  it('repro_card rejects malformed manifests instead of throwing', async () => {
+    const value = (await makeReproCardTool().execute({ manifest: { manifestVersion: 1, artifacts: [] } } as never, EXEC)) as {
+      ok: false
+      error: { code: string }
+    }
+    expect(value.ok).toBe(false)
+    expect(value.error.code).toBe('INVALID_MANIFEST')
   })
 })
 

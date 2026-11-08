@@ -33,7 +33,7 @@ export function makeReproCheckTool(runtime: ReproAuditRuntime) {
     parameters: {
       manifest: { type: 'json', description: 'A manifest returned by repro_manifest.' },
       manifestPath: { type: 'string', description: 'Workspace-relative path to a saved repro_manifest JSON (record format is accepted).' },
-      path: { type: 'string', description: 'Workspace-relative project directory to re-scan (default: the manifest file\'s directory, or the workspace root).' },
+      path: { type: 'string', description: 'Workspace-relative project directory to re-scan (default: the workspace root).' },
     },
     output: {
       schema: OUTPUT_SCHEMA,

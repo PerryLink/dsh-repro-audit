@@ -46,6 +46,23 @@ export interface ReproAuditRuntimeOptions {
   readonly now?: () => Date
 }
 
+/** True when `value` is a non-null object. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+/** True when `value` is a manifest this plugin can compare without crashing. */
+function isManifest(value: unknown): value is ReproManifest {
+  if (!isRecord(value)) return false
+  if (value['manifestVersion'] !== 1 || !Array.isArray(value['artifacts'])) return false
+  if (typeof value['rootId'] !== 'string' || typeof value['generatedAt'] !== 'string') return false
+  if (!Array.isArray(value['gaps']) || !Array.isArray(value['warnings']) || !Array.isArray(value['seeds']) || !Array.isArray(value['commands'])) return false
+  return value['artifacts'].every(artifact => isRecord(artifact)
+    && typeof artifact['artifactId'] === 'string'
+    && typeof artifact['kind'] === 'string'
+    && typeof artifact['hash'] === 'string')
+}
+
 /** Read git evidence without executing project code. */
 export async function gitEvidence(root: string): Promise<GitEvidence> {
   const run = async (args: string[]): Promise<string | undefined> => {
@@ -148,7 +165,7 @@ export class ReproAuditRuntime {
     if (manifest === undefined) {
       if (request.manifestPath === undefined) throw new ReproError('INVALID_INPUT', 'pass manifest or manifestPath')
       // The manifest is workspace-relative; the project it describes is
-      // `path` when given, otherwise the manifest's own directory.
+      // `path` when given, otherwise the workspace root.
       const workspace = this.config.workspaceRoot
       let realRoot: string
       try {
@@ -158,17 +175,33 @@ export class ReproAuditRuntime {
       }
       const absolute = path.resolve(realRoot, request.manifestPath)
       if (!isInside(realRoot, absolute)) throw new ReproError('PATH_ESCAPE', 'manifestPath resolves outside the workspace root')
-      let raw: string
+      let realManifest: string
       try {
-        raw = await readFile(absolute, 'utf8')
+        realManifest = await realpath(absolute)
       } catch {
         throw new ReproError('NOT_FOUND', `manifest not found: ${request.manifestPath}`)
       }
-      const parsed = JSON.parse(raw) as { manifest?: ReproManifest } | ReproManifest
-      manifest = 'manifestVersion' in parsed && parsed.manifestVersion === 1 ? parsed : (parsed as { manifest?: ReproManifest }).manifest
+      if (!isInside(realRoot, realManifest)) throw new ReproError('PATH_ESCAPE', 'manifestPath escapes the workspace root through a symlink')
+      let raw: string
+      try {
+        raw = await readFile(realManifest, 'utf8')
+      } catch {
+        throw new ReproError('NOT_FOUND', `manifest not found: ${request.manifestPath}`)
+      }
+      let parsed: unknown
+      try {
+        parsed = JSON.parse(raw)
+      } catch {
+        throw new ReproError('INVALID_MANIFEST', `manifest is not valid JSON: ${request.manifestPath}`)
+      }
+      const candidate = isRecord(parsed) && isRecord(parsed['manifest']) ? parsed['manifest'] : parsed
+      if (!isManifest(candidate)) {
+        throw new ReproError('INVALID_MANIFEST', 'the manifest must have manifestVersion 1, artifacts, gaps and warnings arrays, and a rootId')
+      }
+      manifest = candidate
     }
-    if (manifest === undefined || manifest.manifestVersion !== 1 || !Array.isArray(manifest.artifacts)) {
-      throw new ReproError('INVALID_MANIFEST', 'the manifest must have manifestVersion 1 and an artifacts array')
+    if (!isManifest(manifest)) {
+      throw new ReproError('INVALID_MANIFEST', 'the manifest must have manifestVersion 1, artifacts, gaps and warnings arrays, and a rootId')
     }
     const directory = await this.resolveDirectory(request.path)
     const git = await gitEvidence(directory.absolute)

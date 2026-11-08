@@ -4,7 +4,7 @@
  */
 
 import { execFile } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { promisify } from 'node:util'
@@ -60,9 +60,18 @@ describe('scan', () => {
   it('skips node_modules and reports symlinks without following them', async () => {
     await mkdir(path.join(root, 'node_modules', 'x'), { recursive: true })
     await writeFile(path.join(root, 'node_modules', 'x', 'index.js'), 'secret', 'utf8')
+    try {
+      await symlink(path.join(root, 'data', 'input.csv'), path.join(root, 'linked.csv'))
+    } catch (error) {
+      // Windows without Developer Mode/symlink privilege: the skip branch is
+      // still exercised on Linux/macOS CI, where the assertion below runs.
+      if ((error as NodeJS.ErrnoException).code === 'EPERM') return
+      throw error
+    }
     const scan = await scanProject(root)
     expect(scan.files.some(file => file.path.startsWith('node_modules'))).toBe(false)
-    expect(scan.warnings.some(warning => warning.startsWith('symlink skipped')) || true).toBe(true)
+    expect(scan.warnings).toContain('symlink skipped: linked.csv')
+    expect(scan.files.some(file => file.path === 'linked.csv')).toBe(false)
   })
 
   it('caps the file count and says so', async () => {

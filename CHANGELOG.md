@@ -6,6 +6,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- `repro_check` resolves a saved manifest through `realpath` and rejects a
+  symlink that escapes the workspace (`PATH_ESCAPE`).
+- Malformed saved manifests (invalid JSON, `null`, or missing required arrays)
+  return `INVALID_MANIFEST` instead of throwing a `SyntaxError`/`TypeError`.
+- `repro_card` validates its manifest/drift inputs and returns
+  `INVALID_MANIFEST`/`INVALID_INPUT` rather than crashing on malformed JSON.
+- The symlink-skipping test now creates a real symlink and asserts that it is
+  skipped (the previous assertion was unconditional `|| true`).
+
+### Changed
+
+- Test count is now 20; the README and evaluation notes list the new failure
+  branches.
+
 ## [0.1.0] - 2026-11-08
 
 First release: reproducibility evidence and drift detection.
