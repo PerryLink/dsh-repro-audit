@@ -181,6 +181,8 @@ describe('tools', () => {
     }
     expect(value.ok).toBe(false)
     expect(value.error.code).toBe('INVALID_MANIFEST')
+    const nullManifest = (await card.execute({ manifest: null } as never, EXEC)) as { ok: false; error: { code: string } }
+    expect(nullManifest.error.code).toBe('INVALID_MANIFEST')
 
     const manifestValue = (await makeReproManifestTool(runtime()).execute({}, EXEC)) as { ok: true; manifest: ReproManifest }
     const badDrift = (await card.execute({
@@ -189,6 +191,8 @@ describe('tools', () => {
     } as never, EXEC)) as { ok: false; error: { code: string } }
     expect(badDrift.ok).toBe(false)
     expect(badDrift.error.code).toBe('INVALID_INPUT')
+    const nullDrift = (await card.execute({ manifest: manifestValue.manifest, drift: null } as never, EXEC)) as { ok: false; error: { code: string } }
+    expect(nullDrift.error.code).toBe('INVALID_INPUT')
   })
 })
 

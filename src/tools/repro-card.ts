@@ -47,7 +47,7 @@ export function makeReproCardTool() {
     async execute(args: unknown) {
       const request = args as { manifest?: ReproManifest; drift?: DriftReport }
       const manifest = request.manifest
-      if (manifest === undefined || manifest.manifestVersion !== 1
+      if (manifest === undefined || manifest === null || typeof manifest !== 'object' || manifest.manifestVersion !== 1
         || !Array.isArray(manifest.artifacts) || !Array.isArray(manifest.gaps)
         || !Array.isArray(manifest.warnings) || !Array.isArray(manifest.commands) || !Array.isArray(manifest.seeds)
         || typeof manifest.rootId !== 'string' || typeof manifest.level !== 'string' || typeof manifest.generatedAt !== 'string'
@@ -63,7 +63,9 @@ export function makeReproCardTool() {
       if (malformedGap || malformedArtifact) {
         return { ok: false as const, error: { code: 'INVALID_MANIFEST', message: 'the manifest contains malformed gaps or artifacts' } }
       }
-      if (request.drift !== undefined && (!Array.isArray(request.drift.findings) || typeof request.drift.level !== 'string' || typeof request.drift.checkedAt !== 'string')) {
+      if (request.drift !== undefined
+        && (request.drift === null || typeof request.drift !== 'object'
+          || !Array.isArray(request.drift.findings) || typeof request.drift.level !== 'string' || typeof request.drift.checkedAt !== 'string')) {
         return { ok: false as const, error: { code: 'INVALID_INPUT', message: 'drift must be a drift report returned by repro_check' } }
       }
       const malformedFinding = request.drift?.findings.some(finding => finding === null || typeof finding !== 'object'
