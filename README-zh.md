@@ -97,19 +97,46 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 
 ## 评测
 
-**26 个测试**：扫描（lockfile/数据/图表/seed/命令/运行时、跳过 `node_modules`、符号链接跳过但报告、项目配置不计为数据、小写 `.r` 脚本、文件数上限、排除自身存储（包括通过符号链接/短路径访问的工作区）、不执行 fsmonitor hook、忽略继承的 `GIT_*`）、清单级别（干净 → reproducible、无 seed → partial、无 git → not_reproducible、有未提交改动 → partial、空项目的缺口集合）、漂移（数据变化 + 图表缺失、干净重查）、运行时（合法 REP 记录、内联清单、带项目路径的已保存清单、拒绝格式错误的已保存清单并报 `INVALID_MANIFEST`、拒绝符号链接清单逃逸、路径逃逸）、tools（schema、manifest→check→card 端到端、失败分支、格式错误的 card 输入）、包契约。
+**27 个测试**：扫描（lockfile/数据/图表/seed/命令/运行时、跳过 `node_modules`、符号链接跳过但报告、项目配置不计为数据、小写 `.r` 脚本、文件数上限、排除自身存储（包括通过符号链接/短路径访问的工作区）、不执行 fsmonitor hook、忽略继承的 `GIT_*`）、清单级别（干净 → reproducible、无 seed → partial、无 git → not_reproducible、有未提交改动 → partial、空项目的缺口集合）、漂移（数据变化 + 图表缺失、干净重查）、运行时（合法 REP 记录、内联清单、带项目路径的已保存清单、拒绝格式错误的已保存清单并报 `INVALID_MANIFEST`、拒绝符号链接清单逃逸、路径逃逸）、tools（schema、manifest→check→card 端到端、失败分支、格式错误的 card 输入）、包契约。
 
-人工样例矩阵（不声称基准测试结果 —— 产物集合基于规则，而非学习得到）：
+### 合成可复现性基准
+
+同工作区的兄弟仓库 `dsh-research-bench` 的 `data/repro` 下另有一组 **10 组确定性合成基准**（数据集 `repro` v0.1.0），不随本包分发。每个 case 是一份 **recipe** —— 相对路径→内容的文件映射、git 模式（`none`、`commit`、`dirty`、`commit-then-modify`）以及漂移操作（`none`、`modify:<path>`、`delete:<path>`）。适配器在全新的 `mkdtemp` 中物化 recipe，用 `ReproAuditRuntime.manifest` 记录清单，再对工作树施加漂移并调用 `ReproAuditRuntime.check`。期望级别与缺口代码集合由 recipe 与文档化的缺口规则手工给出；适配器绝不从插件输出反推期望值。
+
+覆盖：1 组完整干净项目；2 组证据缺口（缺 seed、缺 lockfile）；2 组运行缺口（无运行命令、无 env 钉）；2 组 git 缺口（无 git 仓库、脏工作树）；3 组漂移（记录后改数据、记录后删数据、记录后改 lockfile）。缺 seed 的夹具在 commit 之后还改了一个被跟踪文件，因此同时覆盖两个 warning。四种 git 模式与三种漂移模式全部出现。
+
+用下面的命令实测（Node 24.22.1、git 2.43.0）：
+
+| 指标 | 结果 |
+|---|---:|
+| 级别准确率（manifest，记录时点） | 10/10（100%） |
+| 缺口 precision / recall（micro，精确代码集合） | 1.000 / 1.000 |
+| 缺口集合完全匹配 | 10/10 |
+| 漂移检出率（findings 非空） | 3/3 |
+| 漂移发现完全匹配（status + path） | 3/3 |
+| 干净 case 无误报 | 7/7 |
+| case 通过数 | 10/10 |
+
+```sh
+pnpm run build
+pnpm run bench:repro        # 读取 ../dsh-research-bench/data/repro（可用 BENCH_DIR / --data 覆盖）
+```
+
+输出 `bench/results-repro.json` 与 `bench/results-repro.md`（不含时间戳；同一数据集上重复运行字节一致）。`git` 是硬前置条件：`PATH` 上没有 `git` 时适配器以退出码 2 结束。夹具仓库使用固定身份 `fixture@example.invalid`、空的全局 git 配置，并把记录存储放在项目之外，因此宿主 git 设置与记录目录都不会改变标签。
+
+单元测试样例矩阵（同一批场景也有单元测试覆盖）：
 
 | 场景 | 预期 | 覆盖 |
 |---|---|---|
-| 完整项目、干净工作树 | `reproducible`，0 个缺口 | 测试 |
-| 无 seed | `partial`，`no_seed` | 测试 |
-| 无 git | `not_reproducible`，`no_git_commit` | 测试 |
-| 有未提交改动 | `partial`，`dirty_worktree` | 测试 |
-| 清单生成后数据被修改 | 漂移 `changed`，`not_reproducible` | 测试 |
+| 完整项目、干净工作树 | `reproducible`，0 个缺口 | 测试 + 基准 |
+| 无 seed | `partial`，`no_seed` | 测试 + 基准 |
+| 无 git | `not_reproducible`，`no_git_commit` | 测试 + 基准 |
+| 有未提交改动 | `partial`，`dirty_worktree` | 测试 + 基准 |
+| 清单生成后数据被修改 | 漂移 `changed`，`not_reproducible` | 测试 + 基准 |
 | 图表被删除 | 漂移 `missing` | 测试 |
-| 刚记录的清单 | 漂移为空 | 测试 |
+| 清单生成后数据被删除 | 漂移 `missing`，`not_reproducible` | 基准 |
+| 清单生成后 lockfile 被修改 | 漂移 `changed`，`not_reproducible` | 基准 |
+| 刚记录的清单 | 漂移为空 | 测试 + 基准 |
 
 ## 已知限制（v0.1）
 
@@ -118,6 +145,8 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 - 图表只做哈希，未与生成它的脚本关联（尚无溯源图）。
 - 大型数据文件只记录为“未哈希”（并记一个缺口），而不是流式处理。
 - 不识别 `.gitignore`：已被忽略但实际存在的文件，只要属于数据/图表/相应扩展名，仍会被哈希。
+- 可复现性基准是合成的、规模很小（10 组 recipe）：它衡量扫描器层面的缺口与漂移规则，不代表真实项目的可复现性。1.0 分是回归基线，不是真实仓库准确率的无偏估计。
+- 基准依赖 `git`；没有 `git` 的机器上 `bench:repro` 以退出码 2 结束且不写结果。
 
 ## 许可
 

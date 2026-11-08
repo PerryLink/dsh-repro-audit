@@ -4,6 +4,23 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Deterministic 10-case synthetic reproducibility benchmark (`pnpm run
+  bench:repro`). `bench/run-repro.mjs` materialises each recipe from
+  `dsh-research-bench/data/repro` in a fresh temporary directory, initialises
+  the declared git state (fixed identity `fixture@example.invalid`), records a
+  manifest, applies the declared drift after the manifest, and checks the tree.
+  It reports level accuracy, exact gap-set precision/recall, drift detection,
+  exact drift findings and false positives in `bench/results-repro.json` /
+  `bench/results-repro.md` (no timestamps). Expected levels and gap sets are
+  hand-authored from the recipe, not fitted to plugin output.
+- Committed benchmark results: `bench/results-repro.json` and
+  `bench/results-repro.md` (10/10 cases passed; gap precision/recall 1.000;
+  drift detection 3/3; no false positives 7/7).
+
 ## [0.1.2] - 2026-11-08
 
 ### Changed

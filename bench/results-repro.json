@@ -1,0 +1,470 @@
+{
+  "dataset": "repro",
+  "datasetVersion": "0.1.0",
+  "plugin": {
+    "name": "dsh-repro-audit",
+    "version": "0.1.2"
+  },
+  "command": "pnpm run bench:repro",
+  "call": "ReproAuditRuntime.manifest({ path: \"project\" }) then ReproAuditRuntime.check({ manifest, path: \"project\" })",
+  "fixture": {
+    "gitUser": "fixture@example.invalid",
+    "workspace": "one fresh mkdtemp per case; project in <temp>/project and records in <temp>/store",
+    "drift": "modify appends one LF to the recorded file after the manifest; delete removes the recorded file",
+    "gitIsolation": "GIT_CONFIG_GLOBAL points at an empty file; GIT_CONFIG_NOSYSTEM=1; GIT_* is stripped"
+  },
+  "cases": 10,
+  "passed": 10,
+  "failed": 0,
+  "passRate": 1,
+  "metrics": {
+    "levelAccuracy": {
+      "matched": 10,
+      "total": 10,
+      "rate": 1
+    },
+    "gapPrecision": {
+      "truePositives": 7,
+      "falsePositives": 0,
+      "precision": 1
+    },
+    "gapRecall": {
+      "truePositives": 7,
+      "falseNegatives": 0,
+      "recall": 1
+    },
+    "gapF1": 1,
+    "gapExactSet": {
+      "matched": 10,
+      "total": 10,
+      "rate": 1
+    },
+    "driftDetection": {
+      "detected": 3,
+      "total": 3,
+      "rate": 1
+    },
+    "driftExact": {
+      "matched": 3,
+      "total": 3,
+      "rate": 1
+    },
+    "noFalsePositive": {
+      "cleanCases": 7,
+      "total": 7,
+      "falsePositiveCases": 0,
+      "rate": 1
+    },
+    "casesPassed": {
+      "passed": 10,
+      "total": 10,
+      "rate": 1
+    }
+  },
+  "definitions": {
+    "levelAccuracy": "manifest.level === expected.level at record time; drift cases are scored separately",
+    "gapPrecision": "micro-averaged over all cases: TP / (TP + FP) on gap-code sets; an errored case has no observed codes",
+    "gapRecall": "micro-averaged over all cases: TP / (TP + FN) on gap-code sets; an errored case misses its expected codes",
+    "gapExactSet": "every expected gap code is present and no extra gap code is reported",
+    "driftDetection": "findings.length > 0 on cases whose drift is not none",
+    "driftExact": "findings match the expected status/path set exactly",
+    "noFalsePositive": "findings.length === 0 on cases whose drift is none"
+  },
+  "distribution": {
+    "byCategory": {
+      "complete": 1,
+      "evidence-gap": 2,
+      "runtime-gap": 2,
+      "git-gap": 2,
+      "drift": 3
+    },
+    "byLevel": {
+      "reproducible": 4,
+      "partial": 3,
+      "not_reproducible": 3
+    },
+    "byGit": {
+      "none": 1,
+      "commit": 7,
+      "dirty": 1,
+      "commit-then-modify": 1
+    },
+    "byDrift": {
+      "none": 7,
+      "modify": 2,
+      "delete": 1
+    }
+  },
+  "failures": [],
+  "perCase": [
+    {
+      "id": "repro-0001",
+      "category": "complete",
+      "git": "commit",
+      "drift": "none",
+      "expected": {
+        "level": "reproducible",
+        "gaps": [],
+        "findings": []
+      },
+      "actual": {
+        "level": "reproducible",
+        "gaps": [],
+        "checkLevel": "reproducible",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0002",
+      "category": "evidence-gap",
+      "git": "commit-then-modify",
+      "drift": "none",
+      "expected": {
+        "level": "partial",
+        "gaps": [
+          "dirty_worktree",
+          "no_seed"
+        ],
+        "findings": []
+      },
+      "actual": {
+        "level": "partial",
+        "gaps": [
+          "dirty_worktree",
+          "no_seed"
+        ],
+        "checkLevel": "partial",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0003",
+      "category": "evidence-gap",
+      "git": "commit",
+      "drift": "none",
+      "expected": {
+        "level": "not_reproducible",
+        "gaps": [
+          "no_lockfile"
+        ],
+        "findings": []
+      },
+      "actual": {
+        "level": "not_reproducible",
+        "gaps": [
+          "no_lockfile"
+        ],
+        "checkLevel": "not_reproducible",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0004",
+      "category": "git-gap",
+      "git": "none",
+      "drift": "none",
+      "expected": {
+        "level": "not_reproducible",
+        "gaps": [
+          "no_git_commit"
+        ],
+        "findings": []
+      },
+      "actual": {
+        "level": "not_reproducible",
+        "gaps": [
+          "no_git_commit"
+        ],
+        "checkLevel": "not_reproducible",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0005",
+      "category": "git-gap",
+      "git": "dirty",
+      "drift": "none",
+      "expected": {
+        "level": "partial",
+        "gaps": [
+          "dirty_worktree"
+        ],
+        "findings": []
+      },
+      "actual": {
+        "level": "partial",
+        "gaps": [
+          "dirty_worktree"
+        ],
+        "checkLevel": "partial",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0006",
+      "category": "runtime-gap",
+      "git": "commit",
+      "drift": "none",
+      "expected": {
+        "level": "not_reproducible",
+        "gaps": [
+          "no_run_command"
+        ],
+        "findings": []
+      },
+      "actual": {
+        "level": "not_reproducible",
+        "gaps": [
+          "no_run_command"
+        ],
+        "checkLevel": "not_reproducible",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0007",
+      "category": "runtime-gap",
+      "git": "commit",
+      "drift": "none",
+      "expected": {
+        "level": "partial",
+        "gaps": [
+          "no_environment"
+        ],
+        "findings": []
+      },
+      "actual": {
+        "level": "partial",
+        "gaps": [
+          "no_environment"
+        ],
+        "checkLevel": "partial",
+        "findings": []
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": false,
+      "driftDetected": false,
+      "driftTargetMatched": false,
+      "driftExact": true,
+      "matchedExpectedFindings": 0,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0008",
+      "category": "drift",
+      "git": "commit",
+      "drift": "modify:data/input.csv",
+      "expected": {
+        "level": "reproducible",
+        "gaps": [],
+        "findings": [
+          {
+            "status": "changed",
+            "path": "data/input.csv"
+          }
+        ]
+      },
+      "actual": {
+        "level": "reproducible",
+        "gaps": [],
+        "checkLevel": "not_reproducible",
+        "findings": [
+          {
+            "status": "changed",
+            "kind": "data",
+            "path": "data/input.csv"
+          }
+        ]
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": true,
+      "driftDetected": true,
+      "driftTargetMatched": true,
+      "driftExact": true,
+      "matchedExpectedFindings": 1,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0009",
+      "category": "drift",
+      "git": "commit",
+      "drift": "delete:data/input.csv",
+      "expected": {
+        "level": "reproducible",
+        "gaps": [],
+        "findings": [
+          {
+            "status": "missing",
+            "path": "data/input.csv"
+          }
+        ]
+      },
+      "actual": {
+        "level": "reproducible",
+        "gaps": [],
+        "checkLevel": "not_reproducible",
+        "findings": [
+          {
+            "status": "missing",
+            "kind": "data",
+            "path": "data/input.csv"
+          }
+        ]
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": true,
+      "driftDetected": true,
+      "driftTargetMatched": true,
+      "driftExact": true,
+      "matchedExpectedFindings": 1,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    },
+    {
+      "id": "repro-0010",
+      "category": "drift",
+      "git": "commit",
+      "drift": "modify:package-lock.json",
+      "expected": {
+        "level": "reproducible",
+        "gaps": [],
+        "findings": [
+          {
+            "status": "changed",
+            "path": "package-lock.json"
+          }
+        ]
+      },
+      "actual": {
+        "level": "reproducible",
+        "gaps": [],
+        "checkLevel": "not_reproducible",
+        "findings": [
+          {
+            "status": "changed",
+            "kind": "env",
+            "path": "package-lock.json"
+          }
+        ]
+      },
+      "levelMatch": true,
+      "gapsExact": true,
+      "missingGaps": [],
+      "extraGaps": [],
+      "gapPrecision": 1,
+      "gapRecall": 1,
+      "driftExpected": true,
+      "driftDetected": true,
+      "driftTargetMatched": true,
+      "driftExact": true,
+      "matchedExpectedFindings": 1,
+      "unexpectedFindings": [],
+      "falsePositive": false,
+      "pass": true
+    }
+  ]
+}
