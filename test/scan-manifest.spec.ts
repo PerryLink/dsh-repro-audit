@@ -92,6 +92,26 @@ describe('git evidence', () => {
     expect(evidence.commit).toBeDefined()
     expect(existsSync(marker)).toBe(false)
   })
+
+  it('ignores inherited GIT_* environment overrides', async () => {
+    const other = await mkdtemp(path.join(tmpdir(), 'repro-other-'))
+    try {
+      await execFileAsync('git', ['-C', other, 'init', '-q'])
+      const expected = (await gitEvidence(root)).commit
+      expect(expected).toBeDefined()
+      const original = process.env['GIT_DIR']
+      process.env['GIT_DIR'] = path.join(other, '.git')
+      try {
+        const evidence = await gitEvidence(root)
+        expect(evidence.commit).toBe(expected)
+      } finally {
+        if (original === undefined) delete process.env['GIT_DIR']
+        else process.env['GIT_DIR'] = original
+      }
+    } finally {
+      if (other.startsWith(tmpdir())) await rm(other, { recursive: true, force: true })
+    }
+  })
 })
 
 describe('manifest', () => {

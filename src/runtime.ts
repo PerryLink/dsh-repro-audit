@@ -65,6 +65,13 @@ function isManifest(value: unknown): value is ReproManifest {
 
 /** Read git evidence without executing project code. */
 export async function gitEvidence(root: string): Promise<GitEvidence> {
+  // A host environment may set GIT_DIR/GIT_WORK_TREE (e.g. from a hook); those
+  // would make `git -C root` inspect a different repository. Strip all GIT_*
+  // variables so the evidence is about the requested root and nothing else.
+  const gitEnv: NodeJS.ProcessEnv = { GIT_OPTIONAL_LOCKS: '0' }
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('GIT_')) gitEnv[key] = value
+  }
   const run = async (args: string[]): Promise<string | undefined> => {
     try {
       const { stdout } = await execFileAsync('git', ['-C', root, '-c', 'core.fsmonitor=false', ...args], {
@@ -73,7 +80,7 @@ export async function gitEvidence(root: string): Promise<GitEvidence> {
         maxBuffer: 4 * 1024 * 1024,
         // `git status` may otherwise refresh/write the index, and a repo-local
         // fsmonitor hook is an arbitrary command; disable both.
-        env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
+        env: gitEnv,
       })
       return stdout.trim()
     } catch {

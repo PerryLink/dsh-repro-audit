@@ -29,10 +29,13 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   repository can configure `core.fsmonitor` to an executable, which `git status`
   would run. `GIT_OPTIONAL_LOCKS=0` also keeps `git status` from refreshing the
   index. A regression test asserts the hook is not executed.
+- Strip inherited `GIT_*` variables before spawning git, so `GIT_DIR`/
+  `GIT_WORK_TREE` from the host cannot redirect the evidence to another
+  repository; covered by a regression test.
 
 ### Changed
 
-- Test count is now 23; the README and evaluation notes list the new failure
+- Test count is now 24; the README and evaluation notes list the new failure
   branches.
 
 ## [0.1.0] - 2026-11-08

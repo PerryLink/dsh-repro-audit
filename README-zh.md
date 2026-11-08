@@ -97,11 +97,13 @@ Ignored directories: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target`,
 - Hash caps prevent memory blow-ups; the file cap is reported, not ignored.
 - `git` runs with fixed read-only arguments, a 5 s timeout and `windowsHide`; no shell.
   Repository-local fsmonitor hooks are disabled (`-c core.fsmonitor=false`) and
-  `GIT_OPTIONAL_LOCKS=0` keeps `git status` from refreshing/writing the index.
+  `GIT_OPTIONAL_LOCKS=0` keeps `git status` from refreshing/writing the index;
+  inherited `GIT_*` variables are stripped so `git -C <root>` cannot be
+  redirected to another repository.
 
 ## 评测
 
-**23 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded, fsmonitor hook not executed), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
+**24 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded, fsmonitor hook not executed, inherited GIT_* ignored), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
 
 Manual sample matrix (no benchmark claimed — the artifact set is rule-based, not learned):
 
