@@ -121,6 +121,12 @@ describe('runtime', () => {
     expect(second.manifest.artifacts.some(artifact => artifact.path?.startsWith('store-inside/'))).toBe(false)
     const drift = await inside.check({ manifest: second.manifest })
     expect(drift.findings.some(finding => finding.path?.startsWith('store-inside/'))).toBe(false)
+
+    // root === project: records/ is the only generated directory to exclude.
+    const atProjectRoot = new ReproAuditRuntime({ config: resolveConfig({ workspaceRoot: workspace, root: workspace }), now: () => AT })
+    await atProjectRoot.manifest()
+    const secondAtRoot = await atProjectRoot.manifest()
+    expect(secondAtRoot.manifest.artifacts.some(artifact => artifact.path?.startsWith('records/'))).toBe(false)
   })
 
   it('rejects paths outside the workspace', async () => {

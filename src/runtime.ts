@@ -14,7 +14,7 @@ import { promisify } from 'node:util'
 import { stableId, validateRep, type ResearchRecord } from '@perrylink/dsh-research-core'
 import type { ResolvedConfig } from './config.ts'
 import { buildManifest, compareManifest, type DriftReport, type GitEvidence, type ReproManifest } from './manifest.ts'
-import { isInside, scanProject } from './scan.ts'
+import { isInside, scanProject, type ScanOptions } from './scan.ts'
 import { VERSION } from './version.ts'
 
 const execFileAsync = promisify(execFile)
@@ -99,6 +99,20 @@ export class ReproAuditRuntime {
     return this.#now().toISOString()
   }
 
+  /** Scan bounds plus an exclusion for the record store when it is inside the project. */
+  #scanOptions(root: string): ScanOptions {
+    // If root IS the project, only the generated records/ directory can be
+    // excluded; excluding the project root would scan nothing.
+    const ignore = this.config.root === root ? path.join(this.config.root, 'records') : this.config.root
+    const inside = ignore !== root && isInside(root, ignore)
+    return {
+      maxFiles: this.config.maxFiles,
+      maxDepth: this.config.maxDepth,
+      maxFileBytes: this.config.maxFileBytes,
+      ...(inside ? { ignorePaths: [ignore] } : {}),
+    }
+  }
+
   /** Resolve a project directory inside the workspace. */
   async resolveDirectory(input?: string): Promise<{ absolute: string; id: string }> {
     const root = this.config.workspaceRoot
@@ -128,13 +142,7 @@ export class ReproAuditRuntime {
    */
   async manifest(options: { path?: string } = {}): Promise<ManifestResult> {
     const directory = await this.resolveDirectory(options.path)
-    const storeInside = this.config.root !== directory.absolute && isInside(directory.absolute, this.config.root)
-    const scan = await scanProject(directory.absolute, {
-      maxFiles: this.config.maxFiles,
-      maxDepth: this.config.maxDepth,
-      maxFileBytes: this.config.maxFileBytes,
-      ...(storeInside ? { ignorePaths: [this.config.root] } : {}),
-    })
+    const scan = await scanProject(directory.absolute, this.#scanOptions(directory.absolute))
     const git = await gitEvidence(directory.absolute)
     const manifest = buildManifest({ rootId: directory.id === '.' ? path.basename(directory.absolute) : directory.id, generatedAt: this.iso(), scan, git })
     const record: ResearchRecord = {
@@ -207,13 +215,7 @@ export class ReproAuditRuntime {
     }
     const directory = await this.resolveDirectory(request.path)
     const git = await gitEvidence(directory.absolute)
-    const storeInside = this.config.root !== directory.absolute && isInside(directory.absolute, this.config.root)
-    const scan = await scanProject(directory.absolute, {
-      maxFiles: this.config.maxFiles,
-      maxDepth: this.config.maxDepth,
-      maxFileBytes: this.config.maxFileBytes,
-      ...(storeInside ? { ignorePaths: [this.config.root] } : {}),
-    })
+    const scan = await scanProject(directory.absolute, this.#scanOptions(directory.absolute))
     return compareManifest(manifest, directory.absolute, { generatedAt: this.iso(), git, scan })
   }
 }
