@@ -10,6 +10,7 @@
  */
 
 import { createHash } from 'node:crypto'
+import { realpathSync } from 'node:fs'
 import { readFile, readdir, stat } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -116,6 +117,17 @@ function sha256(buffer: Buffer): string {
   return `sha256:${createHash('sha256').update(buffer).digest('hex')}`
 }
 
+/** Canonicalize a path whose leaf may not exist yet (realpath the ancestor). */
+export function canonicalPath(input: string): string {
+  try {
+    return realpathSync(input)
+  } catch {
+    const parent = path.dirname(input)
+    if (parent === input) return input
+    return path.join(canonicalPath(parent), path.basename(input))
+  }
+}
+
 /** True when `candidate` is inside `root`. */
 export function isInside(root: string, candidate: string): boolean {
   return candidate === root || candidate.startsWith(root.endsWith(path.sep) ? root : `${root}${path.sep}`)
@@ -198,7 +210,7 @@ export async function scanProject(root: string, options: ScanOptions = {}): Prom
   const maxFiles = options.maxFiles ?? 2000
   const maxDepth = options.maxDepth ?? 6
   const maxFileBytes = options.maxFileBytes ?? 8 * 1024 * 1024
-  const ignorePaths = (options.ignorePaths ?? []).map(item => path.resolve(item))
+  const ignorePaths = (options.ignorePaths ?? []).map(item => canonicalPath(item))
   const isIgnored = (absolute: string): boolean => ignorePaths.some(ignore => absolute === ignore || isInside(ignore, absolute))
   const lockfiles: ScannedFile[] = []
   const envFiles: ScannedFile[] = []

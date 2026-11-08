@@ -75,6 +75,17 @@ describe('scan', () => {
     expect(scan.files.some(file => file.path === 'linked.csv')).toBe(false)
   })
 
+  it('ignores paths given through a symlinked alias (canonicalisation)', async () => {
+    const alias = path.join(tmpdir(), `repro-alias-${process.pid}-${Date.now()}`)
+    await symlink(root, alias, 'dir')
+    try {
+      const scan = await scanProject(root, { ignorePaths: [path.join(alias, 'data')] })
+      expect(scan.data.some(file => file.path.startsWith('data/'))).toBe(false)
+    } finally {
+      await rm(alias, { recursive: true, force: true })
+    }
+  })
+
   it('caps the file count and says so', async () => {
     const scan = await scanProject(root, { maxFiles: 3 })
     expect(scan.truncated).toBe(true)
