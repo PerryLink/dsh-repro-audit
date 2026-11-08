@@ -74,7 +74,8 @@ describe('runtime', () => {
       const rt = new ReproAuditRuntime({ config: resolveConfig({ workspaceRoot: alias, root: path.join(alias, 'store-inside') }), now: () => AT })
       await rt.manifest()
       const second = await rt.manifest()
-      expect(second.manifest.artifacts.some(artifact => artifact.path?.startsWith('store-inside/'))).toBe(false)
+      const leaked = second.manifest.artifacts.map(artifact => artifact.path ?? '').filter(item => item.startsWith('store-inside/'))
+      expect(leaked, JSON.stringify(leaked)).toEqual([])
     } finally {
       await rm(alias, { recursive: true, force: true })
     }

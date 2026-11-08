@@ -120,7 +120,8 @@ export class ReproAuditRuntime {
     // Compare canonical paths: on macOS /var is a symlink to /private/var and
     // the configured root may use either spelling.
     const configuredRoot = canonicalPath(this.config.root)
-    const ignore = configuredRoot === root ? path.join(root, 'records') : configuredRoot
+    const sameRoot = process.platform === 'win32' ? configuredRoot.toLowerCase() === root.toLowerCase() : configuredRoot === root
+    const ignore = sameRoot ? path.join(root, 'records') : configuredRoot
     const inside = ignore !== root && isInside(root, ignore)
     return {
       maxFiles: this.config.maxFiles,

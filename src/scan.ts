@@ -120,7 +120,7 @@ function sha256(buffer: Buffer): string {
 /** Canonicalize a path whose leaf may not exist yet (realpath the ancestor). */
 export function canonicalPath(input: string): string {
   try {
-    return realpathSync(input)
+    return realpathSync.native(input)
   } catch {
     const parent = path.dirname(input)
     if (parent === input) return input
@@ -128,9 +128,16 @@ export function canonicalPath(input: string): string {
   }
 }
 
-/** True when `candidate` is inside `root`. */
+/** Case folding for path comparison (Windows is case-insensitive). */
+function foldPath(value: string): string {
+  return process.platform === 'win32' ? value.toLowerCase() : value
+}
+
+/** True when `candidate` is inside `root` (case-insensitive on Windows). */
 export function isInside(root: string, candidate: string): boolean {
-  return candidate === root || candidate.startsWith(root.endsWith(path.sep) ? root : `${root}${path.sep}`)
+  const foldedRoot = foldPath(root)
+  const foldedCandidate = foldPath(candidate)
+  return foldedCandidate === foldedRoot || foldedCandidate.startsWith(foldedRoot.endsWith(path.sep) ? foldedRoot : `${foldedRoot}${path.sep}`)
 }
 
 /** Read a small text file, or undefined. */
