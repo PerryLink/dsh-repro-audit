@@ -66,6 +66,20 @@ describe('runtime', () => {
     expect(saved.manifest.artifacts.length).toBeGreaterThan(0)
   })
 
+  it('handles a workspace reached through a symlinked alias', async () => {
+    if (process.platform === 'win32') return // symlink creation needs extra privileges
+    const alias = path.join(tmpdir(), `repro-ws-alias-${process.pid}-${Date.now()}`)
+    await symlink(workspace, alias, 'dir')
+    try {
+      const rt = new ReproAuditRuntime({ config: resolveConfig({ workspaceRoot: alias, root: path.join(alias, 'store-inside') }), now: () => AT })
+      await rt.manifest()
+      const second = await rt.manifest()
+      expect(second.manifest.artifacts.some(artifact => artifact.path?.startsWith('store-inside/'))).toBe(false)
+    } finally {
+      await rm(alias, { recursive: true, force: true })
+    }
+  })
+
   it('detects drift against an inline manifest', async () => {
     const rt = runtime()
     const { manifest } = await rt.manifest()

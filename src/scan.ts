@@ -206,7 +206,8 @@ function classify(relative: string): 'lockfile' | 'env' | 'data' | 'figure' | 'n
  * @param options - bounds.
  * @returns the scan result.
  */
-export async function scanProject(root: string, options: ScanOptions = {}): Promise<ScanResult> {
+export async function scanProject(inputRoot: string, options: ScanOptions = {}): Promise<ScanResult> {
+  const root = canonicalPath(inputRoot)
   const maxFiles = options.maxFiles ?? 2000
   const maxDepth = options.maxDepth ?? 6
   const maxFileBytes = options.maxFileBytes ?? 8 * 1024 * 1024

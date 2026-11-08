@@ -76,6 +76,7 @@ describe('scan', () => {
   })
 
   it('ignores paths given through a symlinked alias (canonicalisation)', async () => {
+    if (process.platform === 'win32') return // symlink creation needs extra privileges
     const alias = path.join(tmpdir(), `repro-alias-${process.pid}-${Date.now()}`)
     await symlink(root, alias, 'dir')
     try {

@@ -14,7 +14,7 @@ import { promisify } from 'node:util'
 import { stableId, validateRep, type ResearchRecord } from '@perrylink/dsh-research-core'
 import type { ResolvedConfig } from './config.ts'
 import { buildManifest, compareManifest, type DriftReport, type GitEvidence, type ReproManifest } from './manifest.ts'
-import { isInside, scanProject, type ScanOptions } from './scan.ts'
+import { canonicalPath, isInside, scanProject, type ScanOptions } from './scan.ts'
 import { VERSION } from './version.ts'
 
 const execFileAsync = promisify(execFile)
@@ -117,7 +117,10 @@ export class ReproAuditRuntime {
   #scanOptions(root: string): ScanOptions {
     // If root IS the project, only the generated records/ directory can be
     // excluded; excluding the project root would scan nothing.
-    const ignore = this.config.root === root ? path.join(this.config.root, 'records') : this.config.root
+    // Compare canonical paths: on macOS /var is a symlink to /private/var and
+    // the configured root may use either spelling.
+    const configuredRoot = canonicalPath(this.config.root)
+    const ignore = configuredRoot === root ? path.join(root, 'records') : configuredRoot
     const inside = ignore !== root && isInside(root, ignore)
     return {
       maxFiles: this.config.maxFiles,
