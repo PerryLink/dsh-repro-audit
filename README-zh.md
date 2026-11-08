@@ -97,7 +97,7 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 
 ## 评测
 
-**24 个测试**：扫描（lockfile/数据/图表/seed/命令/运行时、跳过 `node_modules`、符号链接跳过但报告、项目配置不计为数据、小写 `.r` 脚本、文件数上限、排除自身存储、不执行 fsmonitor hook、忽略继承的 `GIT_*`）、清单级别（干净 → reproducible、无 seed → partial、无 git → not_reproducible、有未提交改动 → partial、空项目的缺口集合）、漂移（数据变化 + 图表缺失、干净重查）、运行时（合法 REP 记录、内联清单、带项目路径的已保存清单、拒绝格式错误的已保存清单并报 `INVALID_MANIFEST`、拒绝符号链接清单逃逸、路径逃逸）、tools（schema、manifest→check→card 端到端、失败分支、格式错误的 card 输入）、包契约。
+**26 个测试**：扫描（lockfile/数据/图表/seed/命令/运行时、跳过 `node_modules`、符号链接跳过但报告、项目配置不计为数据、小写 `.r` 脚本、文件数上限、排除自身存储（包括通过符号链接/短路径访问的工作区）、不执行 fsmonitor hook、忽略继承的 `GIT_*`）、清单级别（干净 → reproducible、无 seed → partial、无 git → not_reproducible、有未提交改动 → partial、空项目的缺口集合）、漂移（数据变化 + 图表缺失、干净重查）、运行时（合法 REP 记录、内联清单、带项目路径的已保存清单、拒绝格式错误的已保存清单并报 `INVALID_MANIFEST`、拒绝符号链接清单逃逸、路径逃逸）、tools（schema、manifest→check→card 端到端、失败分支、格式错误的 card 输入）、包契约。
 
 人工样例矩阵（不声称基准测试结果 —— 产物集合基于规则，而非学习得到）：
 

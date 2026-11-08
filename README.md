@@ -103,7 +103,7 @@ Ignored directories: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target`,
 
 ## Evaluation
 
-**24 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded, fsmonitor hook not executed, inherited GIT_* ignored), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
+**26 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded (including through symlinked/short workspace paths), fsmonitor hook not executed, inherited GIT_* ignored), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
 
 Manual sample matrix (no benchmark claimed — the artifact set is rule-based, not learned):
 
