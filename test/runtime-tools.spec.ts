@@ -173,13 +173,22 @@ describe('tools', () => {
     expect(value.error.code).toBe('INVALID_INPUT')
   })
 
-  it('repro_card rejects malformed manifests instead of throwing', async () => {
-    const value = (await makeReproCardTool().execute({ manifest: { manifestVersion: 1, artifacts: [] } } as never, EXEC)) as {
+  it('repro_card rejects malformed manifests and drift instead of throwing', async () => {
+    const card = makeReproCardTool()
+    const value = (await card.execute({ manifest: { manifestVersion: 1, artifacts: [] } } as never, EXEC)) as {
       ok: false
       error: { code: string }
     }
     expect(value.ok).toBe(false)
     expect(value.error.code).toBe('INVALID_MANIFEST')
+
+    const manifestValue = (await makeReproManifestTool(runtime()).execute({}, EXEC)) as { ok: true; manifest: ReproManifest }
+    const badDrift = (await card.execute({
+      manifest: manifestValue.manifest,
+      drift: { checkedAt: AT.toISOString(), rootId: 'fixture', level: 'partial', findings: [{ expected: 42 }], current: manifestValue.manifest },
+    } as never, EXEC)) as { ok: false; error: { code: string } }
+    expect(badDrift.ok).toBe(false)
+    expect(badDrift.error.code).toBe('INVALID_INPUT')
   })
 })
 

@@ -66,6 +66,13 @@ export function makeReproCardTool() {
       if (request.drift !== undefined && (!Array.isArray(request.drift.findings) || typeof request.drift.level !== 'string' || typeof request.drift.checkedAt !== 'string')) {
         return { ok: false as const, error: { code: 'INVALID_INPUT', message: 'drift must be a drift report returned by repro_check' } }
       }
+      const malformedFinding = request.drift?.findings.some(finding => finding === null || typeof finding !== 'object'
+        || typeof finding.status !== 'string' || typeof finding.kind !== 'string'
+        || (finding.expected !== undefined && typeof finding.expected !== 'string')
+        || (finding.actual !== undefined && typeof finding.actual !== 'string'))
+      if (malformedFinding === true) {
+        return { ok: false as const, error: { code: 'INVALID_INPUT', message: 'drift contains a malformed finding' } }
+      }
       const markdown = request.drift === undefined ? renderManifestMarkdown(manifest) : `${renderManifestMarkdown(manifest)}\n${renderDriftMarkdown(request.drift)}`
       return { ok: true as const, markdown, sarif: renderReproSarif(manifest, request.drift, VERSION) as never }
     },
