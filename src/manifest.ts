@@ -120,7 +120,7 @@ export function gapsOf(scan: ScanResult, git: GitEvidence): ReproGap[] {
       suggestion: 'add a single documented entry point that regenerates the results',
     })
   }
-  if (scan.seeds.length === 0 && scan.files.some(file => file.path.endsWith('.py') || file.path.endsWith('.R'))) {
+  if (scan.seeds.length === 0 && scan.scripts.some(file => /\.(py|r|rmd|qmd)$/iu.test(file.path))) {
     gaps.push({
       code: 'no_seed',
       severity: 'warning',

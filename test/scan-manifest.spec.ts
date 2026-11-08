@@ -110,6 +110,17 @@ describe('manifest', () => {
     expect(manifest.level).toBe('partial')
   })
 
+  it('does not count project config as data and recognizes lowercase .r scripts', async () => {
+    await rm(path.join(root, 'data'), { recursive: true, force: true })
+    await rm(path.join(root, 'analysis.py'))
+    await writeFile(path.join(root, 'analysis.r'), 'print("no seed here")\n', 'utf8')
+    const scan = await scanProject(root)
+    expect(scan.data).toEqual([])
+    expect(scan.scripts.map(file => file.path)).toContain('analysis.r')
+    const gaps = gapsOf(scan, { error: 'no git' })
+    expect(gaps.map(gap => gap.code)).toEqual(expect.arrayContaining(['no_data', 'no_seed']))
+  })
+
   it('builds gap severities deterministically for an empty project', async () => {
     const empty = await mkdtemp(path.join(tmpdir(), 'repro-empty-'))
     try {

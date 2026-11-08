@@ -41,6 +41,11 @@ const DATA_EXTENSIONS = new Set(['.csv', '.tsv', '.parquet', '.json', '.h5', '.h
 /** Figure extensions. */
 const FIGURE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg', '.svg', '.pdf', '.tif', '.tiff', '.eps'])
 
+/** Project/build configuration JSON that is not input data. */
+function isProjectConfig(base: string): boolean {
+  return base === 'package.json' || base === 'jsconfig.json' || /^tsconfig(\..+)?\.json$/u.test(base)
+}
+
 /** Seed patterns, with the literal they carry. */
 const SEED_PATTERNS: ReadonlyArray<{ pattern: RegExp; kind: string }> = [
   { pattern: /\brandom_state\s*=\s*(-?\d+)/gu, kind: 'sklearn-random_state' },
@@ -171,6 +176,7 @@ function classify(relative: string): 'lockfile' | 'env' | 'data' | 'figure' | 'n
   const directory = relative.split('/').slice(0, -1).join('/').toLowerCase()
   if (LOCKFILES.has(base)) return 'lockfile'
   if (ENV_FILES.has(base)) return 'env'
+  if (isProjectConfig(base)) return 'other'
   if (extension === '.ipynb') return 'notebook'
   if (SCRIPT_EXTENSIONS.has(extension)) return 'script'
   if (FIGURE_EXTENSIONS.has(extension) || /(^|\/)(figures?|figs?|plots?)(\/|$)/u.test(directory)) return 'figure'

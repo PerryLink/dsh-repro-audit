@@ -16,10 +16,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `INVALID_MANIFEST`/`INVALID_INPUT` rather than crashing on malformed JSON.
 - The symlink-skipping test now creates a real symlink and asserts that it is
   skipped (the previous assertion was unconditional `|| true`).
+- `package.json`, `jsconfig.json` and `tsconfig*.json` are no longer classified
+  as input data; a Node project therefore no longer suppresses the `no_data`
+  gap with its build configuration.
+- The `no_seed` gap now recognizes lowercase `.r` (and `.Rmd`/`.qmd`) scripts;
+  it previously matched only `.py` and uppercase `.R`.
 
 ### Changed
 
-- Test count is now 20; the README and evaluation notes list the new failure
+- Test count is now 21; the README and evaluation notes list the new failure
   branches.
 
 ## [0.1.0] - 2026-11-08
