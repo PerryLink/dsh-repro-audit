@@ -65,7 +65,7 @@
   "dependencies": {},
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.1.0",
-    "@deepseek-ai/dsh-tools": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.3",
     "@deepseek-ai/schemastery": "~3.19.0",
     "@perrylink/dsh-research-core": "file:../dsh-research-core",
     "@types/node": "^22.20.5",
