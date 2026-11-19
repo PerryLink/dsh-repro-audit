@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Check out the workspace sibling
+        run: git clone --depth 1 https://github.com/PerryLink/dsh-research-core.git ../dsh-research-core
+      - name: Install
+        run: pnpm install --no-frozen-lockfile
+      - name: Gate
+        run: |
+          if node -e "const s=require('./package.json').scripts||{};process.exit(s.typecheck?0:1)"; then pnpm run typecheck; fi
+          if node -e "const s=require('./package.json').scripts||{};process.exit(s.test?0:1)"; then pnpm test; fi
+          if node -e "const s=require('./package.json').scripts||{};process.exit(s.build?0:1)"; then pnpm run build; fi
+      - name: Upgrade npm
+        run: npm install -g npm@^11.5.1
+      - name: Publish to npm
+        env:
+          NPM_CONFIG_LOGLEVEL: verbose
+        run: |
+          name="$(node -p "require('./package.json').name")"
+          version="$(node -p "require('./package.json').version")"
+          if npm view "${name}@${version}" version >/dev/null 2>&1; then echo "already published"; else npm publish --provenance --access public; fi
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="v${version}"
+          if gh release view "${tag}" >/dev/null 2>&1; then echo "release exists"; else gh release create "${tag}" --target "${GITHUB_SHA}" --title "${tag}" --generate-notes; fi
