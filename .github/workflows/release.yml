@@ -24,6 +24,11 @@ jobs:
           cache: pnpm
       - name: Check out the workspace sibling
         run: git clone --depth 1 https://github.com/PerryLink/dsh-research-core.git ../dsh-research-core
+      - name: Build the workspace sibling
+        run: |
+          cd ../dsh-research-core
+          pnpm install --no-frozen-lockfile
+          pnpm run build
       - name: Install
         run: pnpm install --no-frozen-lockfile
       - name: Gate
