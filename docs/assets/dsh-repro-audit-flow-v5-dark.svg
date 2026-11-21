@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="660" viewBox="0 0 1100 660" role="img" aria-label="dsh-repro-audit structure diagram">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#131a2a"/><stop offset="1" stop-color="#0c1016"/></linearGradient>
+<filter id="soft" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#16122c" flood-opacity="0.45"/></filter>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.4" markerHeight="6.4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8496f5"/></marker>
+</defs>
+<rect width="1100" height="660" fill="url(#bg)"/>
+<text x="44" y="58" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="28" font-weight="700">dsh-repro-audit</text>
+<text x="44" y="88" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="15">read-only scan → manifest + REP record → drift check → report card</text>
+<rect x="952.15625" y="36" width="103.84375" height="26" rx="13.0" fill="#202839"/>
+<text x="964.15625" y="53.08" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="12" font-weight="700">10 gap codes</text>
+<rect x="44" y="120" width="214" height="250" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="62" y="146" fill="#737b8d" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12" font-weight="700">01</text>
+<text x="62" y="172" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="16.5" font-weight="700">Scan</text>
+<text x="62" y="196" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">read-only, bounded</text>
+<rect x="62" y="209" width="178" height="26" rx="8" fill="#202839"/>
+<text x="72" y="227" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">git rev-parse / status</text>
+<rect x="62" y="241" width="178" height="26" rx="8" fill="#202839"/>
+<text x="72" y="259" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">lockfiles · env pins</text>
+<rect x="62" y="273" width="178" height="26" rx="8" fill="#202839"/>
+<text x="72" y="291" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">data / figures / seeds</text>
+<line x1="260" y1="245.0" x2="276" y2="245.0" stroke="#8496f5" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="278" y="120" width="214" height="250" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="296" y="146" fill="#737b8d" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12" font-weight="700">02</text>
+<text x="296" y="172" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="16.5" font-weight="700">Record</text>
+<text x="296" y="196" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">manifest + REP record</text>
+<rect x="296" y="209" width="178" height="26" rx="8" fill="#202839"/>
+<text x="306" y="227" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">artifacts[] + hashes</text>
+<rect x="296" y="241" width="178" height="26" rx="8" fill="#202839"/>
+<text x="306" y="259" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">gaps[] + level</text>
+<rect x="296" y="273" width="178" height="26" rx="8" fill="#202839"/>
+<text x="306" y="291" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">recordPath</text>
+<line x1="494" y1="245.0" x2="510" y2="245.0" stroke="#8496f5" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="512" y="120" width="214" height="250" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="530" y="146" fill="#737b8d" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="12" font-weight="700">03</text>
+<text x="530" y="172" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="16.5" font-weight="700">Check</text>
+<text x="530" y="196" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">re-scan vs manifest</text>
+<rect x="530" y="209" width="178" height="26" rx="8" fill="#202839"/>
+<text x="540" y="227" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">changed · missing</text>
+<rect x="530" y="241" width="178" height="26" rx="8" fill="#202839"/>
+<text x="540" y="259" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">added</text>
+<rect x="530" y="273" width="178" height="26" rx="8" fill="#202839"/>
+<text x="540" y="291" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">drift → level</text>
+<rect x="752" y="120" width="304" height="148" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="772" y="148" fill="#8496f5" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="14.5" font-weight="700">gaps[]</text>
+<rect x="915.78125" y="130" width="120.734375" height="18" rx="9.0" fill="#202839"/>
+<text x="924.78125" y="142.57" fill="#8496f5" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="10.5">error | warning | info</text>
+<text x="772" y="176" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">no_git_commit: error</text>
+<text x="772" y="198" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">no_lockfile: error</text>
+<text x="772" y="220" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">dirty_worktree: warning</text>
+<rect x="752" y="288" width="304" height="122" rx="18" fill="#1b2231" stroke="#2e374b" stroke-width="1.5" filter="url(#soft)"/>
+<text x="772" y="316" fill="#a8b1c4" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="14.5" font-weight="700">level</text>
+<rect x="986.265625" y="298" width="55.609375" height="18" rx="9.0" fill="#202839"/>
+<text x="995.265625" y="310.57" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="10.5">derived</text>
+<text x="772" y="344" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">error gap → not_reproducible</text>
+<text x="772" y="366" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">warning only → partial</text>
+<text x="772" y="388" fill="#f0f3f9" font-family="'Consolas','SFMono-Regular','Menlo',ui-monospace,monospace" font-size="11.5">none → reproducible</text>
+<rect x="752" y="430" width="304" height="82" rx="18" fill="#1b2231" stroke="#8496f5" stroke-width="1.6" filter="url(#soft)"/>
+<text x="772" y="458" fill="#f0f3f9" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="13.5" font-weight="700">reviewer</text>
+<text x="772" y="482" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">a manifest proves bytes existed</text>
+<text x="772" y="502" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="10.5">not that the analysis is right</text>
+<path d="M730 245.0 H742" fill="none" stroke="#8496f5" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M742 210 V471" fill="none" stroke="#8496f5" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="742" y1="194" x2="750" y2="194" stroke="#8496f5" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="742" y1="349" x2="750" y2="349" stroke="#8496f5" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="742" y1="471" x2="750" y2="471" stroke="#8496f5" stroke-width="1.6" marker-end="url(#arr)"/>
+<line x1="44" y1="420" x2="714" y2="420" stroke="#2b3348" stroke-width="1"/>
+<text x="44" y="444" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">Read-only and bounded: project code is never executed; only git rev-parse/status subprocesses run.</text>
+<text x="44" y="464" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11">Changed or missing artifacts are drift findings; the level is derived from gap severity.</text>
+<line x1="44" y1="564" x2="1056" y2="564" stroke="#2b3348" stroke-width="1"/>
+<text x="44" y="588" fill="#a8b1c4" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">config: root · workspaceRoot · maxFiles · maxDepth · maxFileBytes · enabled</text>
+<text x="44" y="610" fill="#737b8d" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif" font-size="11.5">read-only · symlinks skipped · inherited GIT_* stripped · zero runtime dependencies</text>
+</svg>

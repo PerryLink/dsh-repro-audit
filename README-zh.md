@@ -1,13 +1,22 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-hero-zh-dark.webp">
+  <img src="docs/assets/dsh-repro-audit-hero-zh-light.webp" width="100%" alt="dsh-repro-audit 配图：三组真实 bench 用例 —— repro-0001 为 reproducible 且 0 个缺口，repro-0002 为 partial 且带 dirty_worktree、no_seed，repro-0008 的记录数据 data/input.csv 被修改而构成漂移；右侧是十种缺口代码与三条漂移发现，下方说明清单只能证明字节存在，不能证明分析正确">
+</picture>
+
 # dsh-repro-audit
 
 **别人能复现这项分析吗 —— 以及从你记录至今，有没有东西发生漂移？**
 
 *有界、只读的扫描：记录 commit、lockfile、环境、数据哈希、图表、seed 与运行命令；对照这份记录做漂移检查；生成可直接交给评审的报告卡。*
 
+[English](README.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
+
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24.9-brightgreen.svg)]()
 
-[English](README.md) · 简体中文
+</div>
 
 ---
 
@@ -18,6 +27,14 @@
 - **`repro_card`** 把证据渲染为 Markdown + SARIF 2.1.0，逐项列出缺口、严重级别和具体建议。
 
 级别：`reproducible`（没有 error/warning 级缺口）、`partial`（只有 warning）、`not_reproducible`（存在任何 error 级缺口或漂移）、`unknown`（保留）。
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-repro-audit-flow-v5-light.svg" width="100%" alt="dsh-repro-audit 结构图：有界只读扫描收集 git commit 与脏状态、lockfile、环境钉、数据与图表哈希、seed 与运行命令；清单记录产物与缺口并推导级别；重新扫描后与清单比对，抓出变化、缺失或新增的产物，渲染为 Markdown + SARIF 报告卡；结论留给审阅人">
+</picture>
+
+*结构：扫描 → 记录 → 核对；`gaps[]` 与 `level` 是两条输出，产物变化或缺失属于漂移发现，而不是分析失败。图内只有工具名、缺口代码与字段名，五语共用同一张结构图。*
 
 ## 它不做什么
 
@@ -96,6 +113,11 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 - `git` 以固定的只读参数运行，5 秒超时，并启用 `windowsHide`；不经 shell。仓库本地的 fsmonitor hook 被禁用（`-c core.fsmonitor=false`），`GIT_OPTIONAL_LOCKS=0` 阻止 `git status` 刷新/写入索引；继承来的 `GIT_*` 变量会被清除，因此 `git -C <root>` 无法被重定向到另一个仓库。
 
 ## 评测
+
+![dsh-repro-audit 基准评测：10 组冻结合成可复现性用例的真实运行 —— 10/10 全部通过，级别准确率 10/10，缺口 precision / recall 均 1.000，漂移检出与漂移发现完全匹配 3/3](docs/assets/dsh-repro-audit-demo.gif)
+
+*动图是基准适配器的真实 stdout —— 每组 recipe 用全新的 `mkdtemp`，git 夹具相互隔离，漂移在清单记录之后施加，不联网（2026-11-21 复跑）。*
+
 
 **27 个测试**：扫描（lockfile/数据/图表/seed/命令/运行时、跳过 `node_modules`、符号链接跳过但报告、项目配置不计为数据、小写 `.r` 脚本、文件数上限、排除自身存储（包括通过符号链接/短路径访问的工作区）、不执行 fsmonitor hook、忽略继承的 `GIT_*`）、清单级别（干净 → reproducible、无 seed → partial、无 git → not_reproducible、有未提交改动 → partial、空项目的缺口集合）、漂移（数据变化 + 图表缺失、干净重查）、运行时（合法 REP 记录、内联清单、带项目路径的已保存清单、拒绝格式错误的已保存清单并报 `INVALID_MANIFEST`、拒绝符号链接清单逃逸、路径逃逸）、tools（schema、manifest→check→card 端到端、失败分支、格式错误的 card 输入）、包契约。
 

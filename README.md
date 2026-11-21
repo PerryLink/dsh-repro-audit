@@ -1,13 +1,22 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-hero-en-dark.webp">
+  <img src="docs/assets/dsh-repro-audit-hero-en-light.webp" width="100%" alt="dsh-repro-audit: three real benchmark cases — repro-0001 reproducible with 0 gaps, repro-0002 partial with dirty_worktree and no_seed, repro-0008 with changed data/input.csv as drift; on the right the ten gap codes and the three drift findings, below the note that a manifest proves bytes existed, not that the analysis is correct">
+</picture>
+
 # dsh-repro-audit
 
 **Would someone else be able to reproduce this analysis — and has anything drifted since you recorded it?**
 
 *A bounded, read-only scan that records the commit, lockfiles, environment, data hashes, figures, seeds and run commands; a drift check against that record; and a report card you can hand to a reviewer.*
 
+[简体中文](README-zh.md) · [Español](README-es.md) · [Português](README-pt.md) · [हिन्दी](README-hi.md)
+
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%5E22.19%20%7C%7C%20%3E%3D24.9-brightgreen.svg)]()
 
-English · [简体中文](README-zh.md)
+</div>
 
 ---
 
@@ -18,6 +27,14 @@ English · [简体中文](README-zh.md)
 - **`repro_card`** renders the evidence as Markdown + SARIF 2.1.0, with every gap, its severity and a concrete suggestion.
 
 Levels: `reproducible` (no error/warning gap), `partial` (warnings only), `not_reproducible` (any error gap or drift), `unknown` (reserved).
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-flow-v5-dark.svg">
+  <img src="docs/assets/dsh-repro-audit-flow-v5-light.svg" width="100%" alt="dsh-repro-audit structure: a read-only bounded scan collects git commit and dirty state, lockfiles, environment pins, data and figure hashes, seeds and run commands; the manifest records artifacts and gaps and derives a level; a re-scan compares against the manifest for changed, missing or added artifacts and renders a Markdown + SARIF report card; the verdict stays with the reviewer">
+</picture>
+
+*Structure: scan → record → check; `gaps[]` and `level` are the two outputs, and a changed or missing artifact is a drift finding rather than a failure of the analysis. The token labels inside the diagram are the real tool, gap and field names, so the same picture serves all five languages.*
 
 ## What it does not do
 
@@ -102,6 +119,11 @@ Ignored directories: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target`,
   redirected to another repository.
 
 ## Evaluation
+
+![dsh-repro-audit benchmark: a real run over the frozen 10-case synthetic reproducibility dataset — 10/10 cases pass, level accuracy 10/10, gap precision and recall 1.000, drift detection and exact drift finding 3/3](docs/assets/dsh-repro-audit-demo.gif)
+
+*Animated: the benchmark adapter's real stdout — one fresh `mkdtemp` per recipe case, isolated git fixtures, drift applied after the manifest, no network (re-run 2026-11-21).*
+
 
 **27 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded (including through symlinked/short workspace paths), fsmonitor hook not executed, inherited GIT_* ignored), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
 
