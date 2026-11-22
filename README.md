@@ -7,6 +7,8 @@
 
 # dsh-repro-audit
 
+当前版本 `0.1.6`。
+
 **Would someone else be able to reproduce this analysis — and has anything drifted since you recorded it?**
 
 *A bounded, read-only scan that records the commit, lockfiles, environment, data hashes, figures, seeds and run commands; a drift check against that record; and a report card you can hand to a reviewer.*
