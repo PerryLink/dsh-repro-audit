@@ -28,7 +28,6 @@
 
 स्तर: `reproducible` (कोई error/warning lacuna नहीं), `partial` (केवल warning), `not_reproducible` (कोई error lacuna या drift), `unknown` (आरक्षित)।
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-flow-v5-dark.svg">
   <img src="docs/assets/dsh-repro-audit-flow-v5-light.svg" width="100%" alt="dsh-repro-audit संरचना: एक सीमित केवल-पढ़ने वाली स्कैन git commit और गंदी स्थिति, lockfile, पर्यावरण पिन, डेटा और चित्र हैश, seed और कमांड एकत्र करती है; manifest artifact और lacuna दर्ज करके स्तर निकालता है; दोबारा स्कैन manifest से तुलना करके बदले, गायब या जुड़े artifact बताता है और Markdown + SARIF रिपोर्ट रेंडर करता है; अंतिम निर्णय समीक्षक के पास रहता है">
@@ -82,7 +81,7 @@ error lacuna स्तर को `not_reproducible` बनाते हैं; w
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`** (2026-11-18 को सत्यापित); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`** (2026-11-22 को सत्यापित); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0` (`24.22.1` पर परीक्षित), केवल ESM |
 | Peers | `@perrylink/dsh-research-core ^0.1.0`, `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | रनटाइम निर्भरताएँ | **शून्य** |
@@ -117,7 +116,6 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 ![dsh-repro-audit बेंचमार्क: 10 फ़्रोज़न सिंथेटिक पुनरुत्पादन-क्षमता केसों पर एक असली रन — 10/10 केस पास, स्तर सटीकता 10/10, lacuna precision और recall 1.000, drift पहचान और सटीक drift निष्कर्ष 3/3](docs/assets/dsh-repro-audit-demo.gif)
 
 *एनिमेटेड: बेंचमार्क एडाप्टर का असली stdout — प्रति रेसिपी एक नया `mkdtemp`, अलग git फ़िक्सचर, manifest के बाद drift लागू, कोई नेटवर्क नहीं (2026-11-21 को दोबारा चलाया गया)।*
-
 
 **27 टेस्ट**: स्कैनिंग (lockfile/डेटा/चित्र/seed/कमांड/runtime, `node_modules` छोड़ा गया, सिमलिंक छोड़े गए पर रिपोर्ट किए गए, प्रोजेक्ट कॉन्फ़िग डेटा नहीं गिना गया, छोटे अक्षर वाली `.r` स्क्रिप्ट, फ़ाइल सीमा, अपना स्टोर बाहर (सिमलिंक/छोटे वर्कस्पेस पथों से भी), fsmonitor hook नहीं चला, विरासत में मिले `GIT_*` अनदेखे), manifest स्तर (साफ़ → reproducible, seed नहीं → partial, git नहीं → not_reproducible, गंदा → partial, खाली प्रोजेक्ट का lacuna-समूह), drift (बदला डेटा + गायब चित्र, साफ़ पुनर्जाँच), runtime (वैध REP रिकॉर्ड, इनलाइन manifest, प्रोजेक्ट पथ के साथ सहेजा manifest, विकृत सहेजे manifest `INVALID_MANIFEST` के साथ अस्वीकृत, सिमलिंक manifest से भागना अस्वीकृत, पथ भागना), टूल (स्कीमा, manifest→check→card एंड-टू-एंड, विफलता शाखा, विकृत card इनपुट), पैकेज अनुबंध।
 

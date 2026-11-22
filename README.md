@@ -28,7 +28,6 @@
 
 Levels: `reproducible` (no error/warning gap), `partial` (warnings only), `not_reproducible` (any error gap or drift), `unknown` (reserved).
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-flow-v5-dark.svg">
   <img src="docs/assets/dsh-repro-audit-flow-v5-light.svg" width="100%" alt="dsh-repro-audit structure: a read-only bounded scan collects git commit and dirty state, lockfiles, environment pins, data and figure hashes, seeds and run commands; the manifest records artifacts and gaps and derives a level; a re-scan compares against the manifest for changed, missing or added artifacts and renders a Markdown + SARIF report card; the verdict stays with the reviewer">
@@ -82,7 +81,7 @@ Error gaps make the level `not_reproducible`; warnings make it `partial`.
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`** (verified 2026-11-18); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`** (verified 2026-11-22); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0` (tested `24.22.1`), ESM only |
 | Peers | `@perrylink/dsh-research-core ^0.1.0`, `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | Runtime dependencies | **zero** |
@@ -123,7 +122,6 @@ Ignored directories: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target`,
 ![dsh-repro-audit benchmark: a real run over the frozen 10-case synthetic reproducibility dataset — 10/10 cases pass, level accuracy 10/10, gap precision and recall 1.000, drift detection and exact drift finding 3/3](docs/assets/dsh-repro-audit-demo.gif)
 
 *Animated: the benchmark adapter's real stdout — one fresh `mkdtemp` per recipe case, isolated git fixtures, drift applied after the manifest, no network (re-run 2026-11-21).*
-
 
 **27 tests**: scanning (lockfiles/data/figures/seeds/commands/runtimes, `node_modules` skipped, symlinks skipped but reported, project config not counted as data, lowercase `.r` scripts, file cap, own store excluded (including through symlinked/short workspace paths), fsmonitor hook not executed, inherited GIT_* ignored), manifest levels (clean → reproducible, no seed → partial, no git → not_reproducible, dirty → partial, empty project gap set), drift (changed data + missing figure, clean re-check), runtime (valid REP record, inline manifest, saved manifest with project path, malformed saved manifests rejected with `INVALID_MANIFEST`, symlinked manifest escape rejected, path escape), tools (schemas, manifest→check→card end-to-end, failure branch, malformed card input), package contract.
 

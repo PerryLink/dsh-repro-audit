@@ -28,7 +28,6 @@
 
 Níveis: `reproducible` (sem lacuna de erro/aviso), `partial` (apenas avisos), `not_reproducible` (qualquer lacuna de erro ou drift), `unknown` (reservado).
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-flow-v5-dark.svg">
   <img src="docs/assets/dsh-repro-audit-flow-v5-light.svg" width="100%" alt="dsh-repro-audit estrutura: uma varredura limitada e somente leitura coleta o commit do git e o estado sujo, lockfiles, fixações de ambiente, hashes de dados e figuras, sementes e comandos; o manifesto registra artefatos e lacunas e deriva um nível; uma nova varredura compara com o manifesto os artefatos alterados, ausentes ou adicionados e renderiza um relatório Markdown + SARIF; o veredito fica com o revisor">
@@ -82,7 +81,7 @@ Lacunas de erro tornam o nível `not_reproducible`; avisos o tornam `partial`.
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`** (verificado em 2026-11-18); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`** (verificado em 2026-11-22); peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0` (testado em `24.22.1`), somente ESM |
 | Peers | `@perrylink/dsh-research-core ^0.1.0`, `@deepseek-ai/cordis ^4.0.5-alpha.1`, `@deepseek-ai/dsh-tools`, `@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | Dependências de runtime | **zero** |
@@ -117,7 +116,6 @@ Diretórios ignorados: `.git`, `node_modules`, `.venv`, `dist`, `build`, `target
 ![dsh-repro-audit benchmark: uma execução real sobre o conjunto congelado de 10 casos sintéticos de reprodutibilidade — 10/10 casos passam, precisão de nível 10/10, precisão e recall de lacunas 1.000, detecção de drift e achado de drift exato 3/3](docs/assets/dsh-repro-audit-demo.gif)
 
 *Animado: a stdout real do adaptador do benchmark — um `mkdtemp` novo por receita, fixtures git isolados, drift aplicado depois do manifesto, sem rede (reexecutado em 2026-11-21).*
-
 
 **27 testes**: varredura (lockfiles/dados/figuras/sementes/comandos/runtimes, `node_modules` ignorado, links simbólicos ignorados mas reportados, configuração do projeto não conta como dados, scripts `.r` em minúsculas, limite de arquivos, armazenamento próprio excluído (inclusive por caminhos de espaço de trabalho linkados/curtos), gancho fsmonitor não executado, `GIT_*` herdadas ignoradas), níveis do manifesto (limpo → reproducible, sem semente → partial, sem git → not_reproducible, sujo → partial, conjunto de lacunas de projeto vazio), drift (dados alterados + figura ausente, reverificação limpa), runtime (registro REP válido, manifesto inline, manifesto salvo com caminho do projeto, manifestos salvos malformados rejeitados com `INVALID_MANIFEST`, escape por manifesto linkado rejeitado, escape de caminho), ferramentas (esquemas, ponta a ponta manifesto→check→card, ramo de falha, entrada de card malformada), contrato do pacote.
 

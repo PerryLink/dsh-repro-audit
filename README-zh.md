@@ -28,7 +28,6 @@
 
 级别：`reproducible`（没有 error/warning 级缺口）、`partial`（只有 warning）、`not_reproducible`（存在任何 error 级缺口或漂移）、`unknown`（保留）。
 
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/dsh-repro-audit-flow-v5-dark.svg">
   <img src="docs/assets/dsh-repro-audit-flow-v5-light.svg" width="100%" alt="dsh-repro-audit 结构图：有界只读扫描收集 git commit 与脏状态、lockfile、环境钉、数据与图表哈希、seed 与运行命令；清单记录产物与缺口并推导级别；重新扫描后与清单比对，抓出变化、缺失或新增的产物，渲染为 Markdown + SARIF 报告卡；结论留给审阅人">
@@ -82,7 +81,7 @@ error 级缺口会把级别降为 `not_reproducible`；warning 会把级别降�
 
 | | |
 |---|---|
-| DeepSeek Harness | **`dsh-v0.2.2-rc.4`**（2026-11-18 实测）；peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
+| DeepSeek Harness | **`dsh-v0.2.3-alpha.1`**（2026-11-22 实测）；peer `>=0.2.1-0 <0.3.0 \|\| >=0.2.2-0 <0.3.0` |
 | Node | `^22.19.0 \|\| >=24.9.0`（实测 `24.22.1`），仅 ESM |
 | Peer 依赖 | `@perrylink/dsh-research-core ^0.1.0`、`@deepseek-ai/cordis ^4.0.5-alpha.1`、`@deepseek-ai/dsh-tools`、`@deepseek-ai/schemastery ^3.18.5-alpha.1` |
 | 运行时依赖 | **零** |
@@ -117,7 +116,6 @@ dsh --profile <name> --dump-config | grep dsh-repro-audit
 ![dsh-repro-audit 基准评测：10 组冻结合成可复现性用例的真实运行 —— 10/10 全部通过，级别准确率 10/10，缺口 precision / recall 均 1.000，漂移检出与漂移发现完全匹配 3/3](docs/assets/dsh-repro-audit-demo.gif)
 
 *动图是基准适配器的真实 stdout —— 每组 recipe 用全新的 `mkdtemp`，git 夹具相互隔离，漂移在清单记录之后施加，不联网（2026-11-21 复跑）。*
-
 
 **27 个测试**：扫描（lockfile/数据/图表/seed/命令/运行时、跳过 `node_modules`、符号链接跳过但报告、项目配置不计为数据、小写 `.r` 脚本、文件数上限、排除自身存储（包括通过符号链接/短路径访问的工作区）、不执行 fsmonitor hook、忽略继承的 `GIT_*`）、清单级别（干净 → reproducible、无 seed → partial、无 git → not_reproducible、有未提交改动 → partial、空项目的缺口集合）、漂移（数据变化 + 图表缺失、干净重查）、运行时（合法 REP 记录、内联清单、带项目路径的已保存清单、拒绝格式错误的已保存清单并报 `INVALID_MANIFEST`、拒绝符号链接清单逃逸、路径逃逸）、tools（schema、manifest→check→card 端到端、失败分支、格式错误的 card 输入）、包契约。
 
